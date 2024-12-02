@@ -1,6 +1,23 @@
+import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
+}
+
+//val localProperties = Properties().apply{
+//    load(FileInputStream(rootProject.file("local.properties")))
+//}
+//Properties properties = new Properties()
+//properties.load(project.rootProject.file('local.properties').newDataInputStream())
+
+val localProperties = Properties()
+val localPropertiesFile = rootProject.file("local.properties")
+
+if (localPropertiesFile.exists()) {
+    localProperties.load(FileInputStream(localPropertiesFile))
 }
 
 android {
@@ -18,6 +35,15 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+        buildFeatures {
+            buildConfig = true
+        }
+
+//        buildConfigField ("String", "API_KEY", "\"${properties["API_KEY"]}\"")
+        buildConfigField ("String", "API_KEY", "${localProperties.getProperty("API_KEY")}")
+//        buildConfigField ("String", "API_KEY", "\"AIzaSyBytp6bx6g40PEXDMppkktx8T2htDWivfg\"")
+
+
     }
 
     buildTypes {
@@ -51,7 +77,17 @@ android {
 
 dependencies {
 
-    implementation(libs.androidx.core.ktx)
+//    implementation(libs.androidx.core.ktx)
+    implementation("androidx.core:core") {
+        version {
+            strictly("1.13.1")
+        }
+    }
+    implementation("androidx.core:core-ktx:1.13.1") {
+        version {
+            strictly("1.13.1")
+        }
+    }
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
@@ -59,6 +95,14 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.gson)
+    implementation(libs.navigation.compose)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
+    implementation(libs.play.services.maps)
+    implementation(libs.maps.compose)
+    implementation(libs.places)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

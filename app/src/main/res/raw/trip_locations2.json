@@ -1,0 +1,250 @@
+[
+  {
+    "city": "오사카",
+    "nation": "일본",
+    "locations": [
+      {
+        "name": "오사카성",
+        "ageGroup": [20],
+        "category": [0, 1, 2, 3],
+        "with": ["커플", "친구"]
+      },
+      {
+        "name": "신사이바시",
+        "ageGroup": [20, 30],
+        "category": [1, 2, 5],
+        "with": ["커플", "친구", "가족"]
+      }
+    ]
+  },
+  {
+    "city": "도쿄",
+    "nation": "일본",
+    "locations": [
+      {
+        "name": "센소지",
+        "ageGroup": [30, 40, 50],
+        "category": [2, 5, 7],
+        "with": ["가족", "친구"]
+      },
+      {
+        "name": "닛코 국립공원",
+        "ageGroup": [40, 50, 60],
+        "category": [2, 3, 4, 7],
+        "with": ["가족", "커플"]
+
+      }
+    ]
+  },
+  {
+    "city": "유쿠하마",
+    "nation": "일본",
+    "locations": [
+      {
+        "name": "미나토 미라이",
+        "ageGroup": [30, 20, 40],
+        "category": [1, 5, 7],
+        "with": ["가족", "친구"]
+      }
+    ]
+  },
+  {
+    "city": "방콕",
+    "nation": "태국",
+    "locations": [
+      {
+        "name": "드림월드",
+        "ageGroup": [20, 30, 40],
+        "category": [3, 4, 5, 7],
+        "with": ["커플", "가족", "친구"]
+      },
+      {
+        "name": "보랏빛 크루즈",
+        "ageGroup": [30, 40, 20, 50],
+        "category": [3, 5, 6, 7],
+        "with": ["커플"]
+      }
+
+    ]
+  },
+  {
+    "city": "푸켓",
+    "nation": "태국",
+    "locations": [
+      {
+        "name": "안다만다 워터파크",
+        "ageGroup": [20, 30, 40],
+        "category": [5, 6, 7],
+        "with": ["커플", "가족", "친구"]
+      }
+    ]
+  },
+  {
+    "city": "파리",
+    "nation": "프랑스",
+    "locations": [
+      {
+        "name": "랜드마크 에펠탑",
+        "ageGroup": [20, 30, 40],
+        "category": [2, 3, 7, 8],
+        "with": ["커플", "가족", "혼자"]
+      },
+      {
+        "name": "루브르 박물관",
+        "ageGroup": [20, 30, 40],
+        "category": [2, 7, 8],
+        "with": ["친구", "가족", "혼자"]
+      },
+      {
+        "name": "베르사유 궁전",
+        "ageGroup": [30, 40, 50],
+        "category": [2, 3, 5, 7],
+        "with": ["친구", "혼자"]
+      }
+    ]
+  },
+  {
+    "city": "노르망디",
+    "nation": "프랑스",
+    "locations": [
+      {
+        "name": "몽생미셸",
+        "ageGroup": [40, 30, 50],
+        "category": [2, 3, 7],
+        "with": ["가족", "친구", "혼자"]
+      }
+    ]
+  },
+  {
+    "city": "하와이주",
+    "nation": "미국",
+    "locations": [
+      {
+        "name": "하와이",
+        "ageGroup": [20, 30, 40],
+        "category": [1, 2, 3, 6, 7],
+        "with": ["커플", "가족", "친구"]
+      }
+    ]
+  },
+  {
+    "city": "...",
+    "nation": "캐나다 - 미국 국경",
+    "locations": [
+      {
+        "name": "나이아가라 폭포",
+        "ageGroup": [20, 30, 40],
+        "category": [3, 5, 7],
+        "with": ["커플", "가족", "친구"]
+      }
+    ]
+  },
+  {
+    "city": "뉴욕",
+    "nation": "미국",
+    "locations": [
+      {
+        "name": "자유의 여신상",
+        "ageGroup": [20, 30, 40],
+        "category": [2, 3, 5, 7, 8],
+        "with": ["가족", "친구"]
+      }
+    ]
+  },
+  {
+    "city": "유타주 남부에서 애리조나주 복부",
+    "nation": "미국",
+    "locations": [
+      {
+        "name": "유타주 모뉴먼트 밸리",
+        "ageGroup": [40, 30, 50],
+        "category": [2, 3, 5, 7],
+        "with": ["가족", "친구"]
+      }
+    ]
+  },
+  {
+    "city": "플로리다 올랜도",
+    "nation": "미국",
+    "locations": [
+      {
+        "name": "월트 디즈니 월드 리조트",
+        "ageGroup": [20, 30, 40],
+        "category": [5, 6, 7],
+        "with": ["가족", "커플", "친구", "혼자"]
+      }
+    ]
+  },
+  {
+    "city": "베이징",
+    "nation": "중국",
+    "locations": [
+      {
+        "name": "만리장성",
+        "ageGroup": [30, 40, 20],
+        "category": [2, 3, 5],
+        "with": ["친구", "혼자"]
+      }
+    ]
+  },
+  {
+    "city": "상하이",
+    "nation": "중국",
+    "locations": [
+      {
+        "name": "상하이타워",
+        "ageGroup": [20, 30, 40],
+        "category": [5, 6, 7],
+        "with": ["친구", "커플"]
+      }
+    ]
+  },
+  {
+    "city": "호남성 장가계시",
+    "nation": "중국",
+    "locations": [
+      {
+        "name": "장가계 국가삼림공원",
+        "ageGroup": [40, 30, 20],
+        "category": [3, 5, 6, 7],
+        "with": ["친구", "가족", "커플"]
+      }
+    ]
+  },
+  {
+    "city": "홉스골",
+    "nation": "몽골",
+    "locations": [
+      {
+        "name": "홉스골 호수",
+        "ageGroup": [20, 30, 40, 50],
+        "category": [0, 2, 3, 5, 7],
+        "with": ["가족", "친구", "커플", "혼자"]
+      }
+    ]
+  },
+  {
+    "city": "올란바토르 남서쪽으로 100km",
+    "nation": "몽골",
+    "locations": [
+      {
+        "name": "호스타이국립공",
+        "ageGroup": [40, 50, 30],
+        "category": [2, 3, 5, 7],
+        "with": ["친구", "가족"]
+      }
+    ]
+  },
+  {
+    "city": "서부 지역",
+    "nation": "몽골",
+    "locations": [
+      {
+        "name": "알타이만년살",
+        "ageGroup": [40, 50, 30],
+        "category": [2, 3, 5, 6, 7],
+        "with": ["가족", "친구", "혼자"]
+      }
+    ]
+  }
+]

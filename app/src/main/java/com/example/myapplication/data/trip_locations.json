@@ -1,0 +1,38 @@
+[
+  {
+    "city": "오사카",
+    "nation" : "일본",
+    "locations" : [
+      {
+        "name": "오사카성",
+        "ageGroup": [20],
+        "category": [1, 2, 3],
+        "with": ["커플", "친구"]
+      },
+      {
+        "name" : "신사이바시",
+        "ageGroup": [20],
+        "category": [1, 2, 5],
+        "with": ["커플", "친구", "가족"]
+      }
+    ]
+  },
+  {
+    "city": "방콕",
+    "nation" : "태국",
+    "locations" : [
+      {
+        "name": "드림월드",
+        "ageGroup": [20, 30],
+        "category": [5, 7, 6],
+        "with": ["커플", "친구"]
+      },
+      {
+        "name" : "짜로프라야 강",
+        "ageGroup": [30, 40],
+        "category": [3, 7, 5],
+        "with": ["커플"]
+      }
+    ]
+  }
+]
