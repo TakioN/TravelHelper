@@ -41,15 +41,20 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.google.firebase.database.FirebaseDatabase
 
+data class MemoryEntry(
+    val content: String =""
+)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MakePlan(viewModel: MyViewModel, navController: NavController) {
+fun MakeRecord(viewModel: MyViewModel, navController: NavController) {
 
     var isVisible by remember { mutableStateOf(false) }
-    var destination by remember { mutableStateOf("") }
+    var title by remember { mutableStateOf("") }
 //    var planList = remember { mutableStateListOf<String>("도쿄") }
-    var planList = viewModel.planList
+    var memoryList = viewModel.memoryList
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -66,7 +71,7 @@ fun MakePlan(viewModel: MyViewModel, navController: NavController) {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            items(planList){item ->
+            items(memoryList){item ->
                 Box(
                     modifier = Modifier
                         .border(
@@ -78,12 +83,12 @@ fun MakePlan(viewModel: MyViewModel, navController: NavController) {
                         .height(55.dp)
                         .padding(5.dp)
                         .clickable{
-                            navController.navigate("map")
+                            navController.navigate("read_record")
                         },
                     contentAlignment = Alignment.Center
                 ){
                     Text(
-                        text = "${viewModel.userName}의 ${item}여행",
+                        text = item,
                         fontSize = 23.sp,
                         color = Color.Black,
                         fontWeight = FontWeight.Bold,
@@ -97,6 +102,7 @@ fun MakePlan(viewModel: MyViewModel, navController: NavController) {
             }
         }
         FloatingAddButton(onClick = { isVisible = true })
+
         if(isVisible) {
             AlertDialog(
                 onDismissRequest = {isVisible = false},
@@ -108,35 +114,24 @@ fun MakePlan(viewModel: MyViewModel, navController: NavController) {
                 confirmButton = {
                     TextButton(
                         onClick = {
-                            planList.add(destination)
+//                            memoryList.add(title)
+                            saveToDb(title, "")
                             isVisible = false
-                            destination = ""
+                            title = ""
                         }
                     ) {
                         Text("OK")
                     }
                 },
-                title = { Text("Where to?") },
+                title = { Text("Memory Name") },
                 text = {
                     Column() {
                         OutlinedTextField(
-                            value = destination,
-                            onValueChange = {destination = it},
-                            label = { Text("Destination") },
+                            value = title,
+                            onValueChange = {title = it},
+                            label = { Text("Title") },
                             modifier = Modifier.fillMaxWidth()
                         )
-                        Spacer(modifier = Modifier.height(16.dp))
-                        if(destination.isEmpty()) {
-                            Button(
-                                modifier = Modifier.fillMaxWidth(),
-                                onClick = {
-                                    isVisible = false
-                                    navController.navigate("survey")
-                                }
-                            ) {
-                                Text("HELP ME CHOOSE")
-                            }
-                        }
                     }
                 }
             )
@@ -144,23 +139,30 @@ fun MakePlan(viewModel: MyViewModel, navController: NavController) {
     }
 }
 
-@Composable
-fun FloatingAddButton(onClick: () -> Unit) {
-    Box(
-        contentAlignment = Alignment.BottomEnd,
-        modifier = Modifier
-            .padding(16.dp)
-            .fillMaxSize()
-    ) {
-        FloatingActionButton(
-            onClick = onClick,
-            containerColor = MaterialTheme.colorScheme.primary, // 버튼 색상
-            contentColor = MaterialTheme.colorScheme.onPrimary // 아이콘 색상
-        ) {
-            Icon(
-                imageVector = Icons.Default.Add, // 플러스 아이콘
-                contentDescription = "Add"
-            )
-        }
-    }
+fun saveToDb(title: String, content: String) {
+    val database = FirebaseDatabase.getInstance()
+    val databaseRef = database.reference.child("memory")
+
+    databaseRef.child(title).setValue(content)
 }
+
+//@Composable
+//fun FloatingAddButton(onClick: () -> Unit) {
+//    Box(
+//        contentAlignment = Alignment.BottomEnd,
+//        modifier = Modifier
+//            .padding(16.dp)
+//            .fillMaxSize()
+//    ) {
+//        FloatingActionButton(
+//            onClick = onClick,
+//            containerColor = MaterialTheme.colorScheme.primary, // 버튼 색상
+//            contentColor = MaterialTheme.colorScheme.onPrimary // 아이콘 색상
+//        ) {
+//            Icon(
+//                imageVector = Icons.Default.Add, // 플러스 아이콘
+//                contentDescription = "Add"
+//            )
+//        }
+//    }
+//}

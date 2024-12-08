@@ -18,6 +18,9 @@ import com.google.android.libraries.places.api.Places
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Thread.setDefaultUncaughtExceptionHandler{
+                thread, throwable -> Log.e("mymymy", thread.name + "::" + throwable.message, throwable)
+        }
         if (!Places.isInitialized()) {
             Places.initialize(applicationContext, BuildConfig.API_KEY) // API 키 추가
         }
@@ -30,10 +33,12 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
 //                    TravelAssistantScreen()
-//                    NavManage()
+
+                    NavManage(placesClient)
+//                    TravelRecord()
 //                    TravelPlanScreen(navController = )
 //                    Recommendation(20, listOf("액티비티", "관광"), 0)
-                    MapScreen(placesClient)
+//                    MapScreen(placesClient)
 //                    TravelAssistantScreen()
                 }
             }

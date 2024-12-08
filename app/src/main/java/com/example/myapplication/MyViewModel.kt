@@ -1,6 +1,7 @@
 package com.example.myapplication
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -13,4 +14,11 @@ class MyViewModel : ViewModel() {
     var age:Int = 0
     var category = emptyList<Int>()
     var with = ""
+
+    var planList = mutableStateListOf("도쿄")
+
+    var memoryList = mutableStateListOf<String>()
+
+    var memoryTitle = ""
+    var memoryContent = ""
 }

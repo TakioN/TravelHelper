@@ -6,17 +6,23 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.travelassistant.TravelPlanScreen
+import com.google.android.libraries.places.api.Places
+import com.google.android.libraries.places.api.net.PlacesClient
 
 @Composable
-fun NavManage() {
+fun NavManage(placesClient: PlacesClient) {
     val navController = rememberNavController()
     val myView: MyViewModel = viewModel()
+
 
     NavHost(navController = navController, startDestination = "home") {
         composable("home") { TravelAssistantScreen(myView, navController) }
         composable("plan") { MakePlan(myView, navController) }
         composable("recommend") { RecommendPage(myView, navController) }
         composable("survey") { TravelPlanScreen(myView, navController) }
-//        composable("map")
+        composable("map") { MapScreen(placesClient = placesClient)}
+        composable("record") { MakeRecord(myView, navController)}
+        composable("read_record") { ReadRecord(navController) }
+        composable("write_record") { TravelRecord(navController) }
     }
 }

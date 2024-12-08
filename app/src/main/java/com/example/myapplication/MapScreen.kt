@@ -4,8 +4,10 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Rect
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -19,6 +21,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ElevatedCard
@@ -31,17 +35,20 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -56,10 +63,16 @@ import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.api.net.FetchPlaceRequest
 import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest
 import com.google.android.libraries.places.api.net.PlacesClient
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
+import com.google.maps.android.compose.Polyline
 import com.google.maps.android.compose.rememberCameraPositionState
+import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 fun MapScreen(placesClient: PlacesClient) {
@@ -74,7 +87,10 @@ fun MapScreen(placesClient: PlacesClient) {
     }
     var isVisible by remember { mutableStateOf(true) }
 //    var markerPositions by remember { mutableStateOf<List<LatLng>>(emptyList()) }
-    var markerPositions = remember { mutableStateListOf<LatLng>() }
+    var markerPositions = remember { mutableStateListOf<LatLng>()}
+//        LatLng(34.6872571, 135.5258546),
+//                        LatLng(34.7024854, 135.4959506)) }
+//    var markerPositions = remember{ mutableStateListOf<MutableState<MutableList<LatLng>>>() }
     val markerPosition = remember { mutableStateOf<LatLng?>(null) }
     var searchResults by remember { mutableStateOf<List<AutocompletePrediction>>(emptyList()) }
     var isBtnActive by remember { mutableStateOf(false) }
@@ -82,6 +98,17 @@ fun MapScreen(placesClient: PlacesClient) {
     var selectedPlaceId by remember { mutableStateOf("") }
     var selectedPlaces = remember { mutableStateListOf<String>() }
 
+    //page state
+    var planLists = remember{ mutableStateListOf<MutableList<String>>() }
+    var planList = remember{ mutableStateListOf<String>() }
+    var totalPage by remember{ mutableStateOf(1) }
+    val pagerState = rememberPagerState{totalPage}
+//    val pagerState = rememberPagerState(pageCount = {2})
+    var currentPage by remember{ mutableStateOf(0) }
+
+//    firebase database
+    val database = FirebaseDatabase.getInstance()
+    val tripRef = database.reference.child("trips")
 //    LaunchedEffect(searchQuery) {
 //        if (searchQuery.isNotEmpty()) {
 //            searchPlace(searchQuery, placesClient) { resultLatLng, predictions ->
@@ -98,6 +125,39 @@ fun MapScreen(placesClient: PlacesClient) {
 //        }
 //    }
 
+    if(planLists.isEmpty()) {
+        planLists.add(mutableListOf())
+    }
+
+    LaunchedEffect(Unit) {
+        getLatLngListForPage(currentPage) { latlngItem, placeItem ->
+            markerPositions.clear()
+            selectedPlaces.clear()
+            markerPositions.addAll(latlngItem)
+            selectedPlaces.addAll(placeItem)
+            if(markerPositions.isNotEmpty()) {
+                cameraPositionState.position = CameraPosition.fromLatLngZoom(markerPositions.first(), 15f)
+                totalPage++
+            }
+
+        }
+    }
+    
+    LaunchedEffect(pagerState) {
+        snapshotFlow { pagerState.currentPage }.collectLatest { pageIndex ->
+            currentPage = pageIndex
+            getLatLngListForPage(pageIndex) { latlngItem, placeItem ->
+                markerPositions.clear()
+                selectedPlaces.clear()
+                markerPositions.addAll(latlngItem)
+                selectedPlaces.addAll(placeItem)
+                if(pageIndex + 1 == totalPage && markerPositions.isNotEmpty()){
+                    totalPage++
+                }
+            }
+        }
+    }
+
     Column{
         Box{
             GoogleMap(
@@ -107,6 +167,7 @@ fun MapScreen(placesClient: PlacesClient) {
 //                .height(Dp(300f)),
                 cameraPositionState = cameraPositionState
             ) {
+//                markerPositions.forEachIndexed{ idx,latlng ->
                 markerPositions.forEachIndexed{ idx,latlng ->
                     Marker(
                         state = MarkerState(latlng),
@@ -114,12 +175,17 @@ fun MapScreen(placesClient: PlacesClient) {
                     )
 
                 }
-//                Marker(
-//                    state = markerState,
-//                    icon = createCircularNumberedMarkerIcon("1"),
-//                    title = "temp",
-//                    snippet = "te"
-//                )
+                Polyline(
+                    points = markerPositions.toList(),
+                    color = Color.Blue,
+                    width = 15f,
+                    jointType = com.google.android.gms.maps.model.JointType.ROUND,
+                    pattern = listOf(
+                        com.google.android.gms.maps.model.Dot(), // 점선의 점을 만듦
+                        com.google.android.gms.maps.model.Gap(10f) // 점선 간격을 설정
+                    )
+                )
+
             }
             Column{
                 Row(
@@ -161,12 +227,22 @@ fun MapScreen(placesClient: PlacesClient) {
                                 ).addOnSuccessListener { fetchResponse ->
                                     val latLng = fetchResponse.place.location
                                     if (latLng != null) {
-//                                        markerPosition.value = latLng
-                                        markerPositions.add(latLng)
+                                        val latLngMap = mapOf(
+                                            "latitude" to latLng.latitude,
+                                            "longitude" to latLng.longitude
+                                        )
+                                        tripRef.child("day${currentPage + 1}").child("latLngs")
+                                            .push().setValue(latLngMap)
+//                                        markerPositions.add(latLng)
                                         cameraPositionState.position = CameraPosition.fromLatLngZoom(latLng, 15f)
                                     }
                                 }
-                                selectedPlaces.add(searchQuery.text)
+//                                selectedPlaces.add(searchQuery.text)
+                                tripRef.child("day${currentPage + 1}").child("name").push().setValue(searchQuery.text)
+//                                planLists[currentPage].add(searchQuery.text)
+//                                if(planLists[currentPage].size == 1) {
+//                                    planLists.add(mutableListOf())
+//                                }
                             }
                             isBtnActive = false
                             searchQuery = TextFieldValue()
@@ -190,24 +266,6 @@ fun MapScreen(placesClient: PlacesClient) {
                             .fillMaxWidth()
                             .height(200.dp)
                     ) {
-//                items(searchResults) { prediction ->
-//                    Text(
-//                        text = prediction.getPrimaryText(null).toString(),
-//                        modifier = Modifier
-//                            .fillMaxWidth()
-//                            .padding(4.dp)
-//                            .clickable {
-//                                // 클릭 시 해당 장소를 마커 리스트에 추가
-//                                val placeLatLng = prediction.latLng
-//                                if (placeLatLng != null) {
-//                                    markerPositions = markerPositions + placeLatLng
-//                                    cameraPositionState.position = CameraPosition.fromLatLngZoom(placeLatLng, 15f)
-//                                    searchQuery = "" // 검색창 초기화
-//                                    searchResults = emptyList() // 결과 리스트 닫기
-//                                }
-//                            }
-//                    )
-//                }
                         items(searchResults){prediction ->
                             ListItem(
                                 modifier = Modifier.clickable {
@@ -231,51 +289,79 @@ fun MapScreen(placesClient: PlacesClient) {
                 }
             }
 
-
-//        Button(
-//            onClick = {
-//                searchPlace(searchQuery, placesClient) { resultLatLng ->
-//                    markerPosition.value = resultLatLng
-//                    resultLatLng?.let {
-//                        cameraPositionState.position = CameraPosition.fromLatLngZoom(it, 15f)
-//                    }
-//                }
-//            },
-//            modifier = Modifier
-//                .fillMaxWidth()
-//                .padding(8.dp)
-//        ) {
-//            Text("Search")
-//        }
-
         }
-        LazyColumn(
-            modifier = Modifier.padding(8.dp)
-        ) {
-            itemsIndexed(selectedPlaces) {idx, item ->
-                ListItem(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(8.dp)),
-                    headlineContent = {Text(item)},
-                    leadingContent = {
-                        Text(
-                            text = (idx + 1).toString(), // 순서 번호
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = if (idx % 2 == 0) Color.White else Color.LightGray,
-                            modifier = Modifier.padding(end = 8.dp)
-                        )
-                    },
-                    colors = ListItemDefaults.colors(
-                        containerColor = if (idx % 2 == 0) Color.LightGray else Color.White,
-                        headlineColor = Color.Black
-                    )
+//        LazyColumn(
+//            modifier = Modifier.padding(8.dp)
+//        ) {
+//            itemsIndexed(selectedPlaces) {idx, item ->
+//                ListItem(
+//                    modifier = Modifier
+//                        .clip(RoundedCornerShape(8.dp)),
+//                    headlineContent = {Text(item)},
+//                    leadingContent = {
+//                        Text(
+//                            text = (idx + 1).toString(), // 순서 번호
+//                            style = MaterialTheme.typography.bodyLarge,
+//                            color = if (idx % 2 == 0) Color.White else Color.LightGray,
+//                            modifier = Modifier.padding(end = 8.dp)
+//                        )
+//                    },
+//                    colors = ListItemDefaults.colors(
+//                        containerColor = if (idx % 2 == 0) Color.LightGray else Color.White,
+//                        headlineColor = Color.Black
+//                    )
+//
+//                )
+//                if (idx < selectedPlaces.size - 1) {
+//                    Spacer(modifier = Modifier.height(8.dp))
+//                }
+//            }
+//        }
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.padding(top = 8.dp)
+        ){
+            Text(
+                text = "Day ${currentPage + 1}",
+                color = Color.White,
+                fontWeight = FontWeight.SemiBold,
+                fontSize = 25.sp
+            )
+            HorizontalPager(
+                state = pagerState,
+                modifier = Modifier
+                    .fillMaxSize()
+            ) {pageIdx ->
+                LazyColumn(
+                    modifier = Modifier.padding(8.dp)
+                ) {
+                    itemsIndexed(selectedPlaces) {idx, item ->
+                        ListItem(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(8.dp)),
+                            headlineContent = {Text(item)},
+                            leadingContent = {
+                                Text(
+                                    text = (idx + 1).toString(),
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    color = if (idx % 2 == 0) Color.White else Color.LightGray,
+                                    modifier = Modifier.padding(end = 8.dp)
+                                )
+                            },
+                            colors = ListItemDefaults.colors(
+                                containerColor = if (idx % 2 == 0) Color.LightGray else Color.White,
+                                headlineColor = Color.Black
+                            )
 
-                )
-                if (idx < selectedPlaces.size - 1) {
-                    Spacer(modifier = Modifier.height(8.dp))
+                        )
+                        if (idx < selectedPlaces.size - 1) {
+                            Spacer(modifier = Modifier.height(8.dp))
+                        }
+                    }
                 }
             }
         }
+
     }
 
 
@@ -356,4 +442,39 @@ fun searchPlace(query: String, placesClient: PlacesClient, onResult: (LatLng?, L
         .addOnFailureListener {
             onResult(null, emptyList())
         }
+}
+
+fun getLatLngListForPage(page: Int, callback: (List<LatLng>, List<String>) -> Unit) {
+    val database = FirebaseDatabase.getInstance()
+    val pagePath = "trips/day${page + 1}"
+    val latLngsRef = database.getReference(pagePath)
+    val latLngList = mutableListOf<LatLng>()
+    val placeList = mutableListOf<String>()
+
+    latLngsRef.addValueEventListener(object : ValueEventListener {
+        override fun onDataChange(snapshot: DataSnapshot) {
+            latLngList.clear()
+            placeList.clear()
+            for (childSnapshot in snapshot.child("latLngs").children) {
+                val longitude = childSnapshot.child("longitude").getValue(Double::class.java)
+                val latitude = childSnapshot.child("latitude").getValue(Double::class.java)
+
+                if (longitude != null && latitude != null) {
+                    latLngList.add(LatLng(latitude, longitude))
+                }
+            }
+            for(childSnapshot in snapshot.child("name").children) {
+                val place = childSnapshot.getValue(String::class.java)
+                if(place != null) {
+                    placeList.add(place)
+                }
+            }
+            callback(latLngList, placeList)
+        }
+
+        override fun onCancelled(error: DatabaseError) {
+            println("Error: ${error.message}")
+            callback(emptyList(), emptyList())
+        }
+    })
 }

@@ -13,6 +13,7 @@ import kotlin.math.abs
 
 /*category info=====================
 [0: 먹거리, 1: 쇼핑, 2: 역사, 3: 자연, 4: 문화, 5: 관광지, 6: 액티비티, 7: 사진, 8: 예술]
+[0: 먹거리, 1: 쇼핑, 2: 문화, 3: 자연, 4: 관광지, 5: 액티비티, 6: 사진, 7: 예술]
 ====================================*/
 
 var sortedrank: List<Location> = emptyList()
@@ -103,7 +104,7 @@ fun calculateScore(location: Location, age: Int, category: List<Int>, companion:
     }
 
 
-    //    calculate companion score
+    // calculate companion score
     if(location.with.contains(companion)) score += 30.0
     else score += 15.0
 

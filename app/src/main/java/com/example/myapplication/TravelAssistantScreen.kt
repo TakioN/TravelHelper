@@ -399,6 +399,8 @@ fun TravelAssistantScreen(viewModel: MyViewModel = viewModel(), navController: N
             FlightSimpleScreen()
         else if(selectedBtn == 1)
             PlanSimpleScreen(viewModel, navController, selectedBtn)
+        else if(selectedBtn == 2)
+            RecordSimpleScreen(viewModel, navController, selectedBtn)
 
         Spacer(modifier = Modifier.height(16.dp))
 

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "473188863848",
+    "project_id": "travelhelper-12e98",
+    "storage_bucket": "travelhelper-12e98.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:473188863848:android:3263f7542ed94669ecd0dd",
+        "android_client_info": {
+          "package_name": "com.example.myapplication"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCa9Oc8Qyd-V8ais6w6dg-WYh1EuZ__OP0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

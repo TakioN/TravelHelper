@@ -49,7 +49,6 @@ fun RecommendPage(viewModel: MyViewModel = viewModel(), navController: NavContro
     val category = viewModel.category
     val with = viewModel.with
     val city = Recommendation(context, age, category, with)
-//    Log.d("mymymy", "$age")
     val pagerState = rememberPagerState(pageCount = { 5 })
     val sortedLocations = city.locations.sortedByDescending { it.score }
 
@@ -105,7 +104,10 @@ fun RecommendPage(viewModel: MyViewModel = viewModel(), navController: NavContro
                         Text(text = "Cancel")
                     }
                     Button(
-                        onClick = {},
+                        onClick = {
+                            viewModel.planList.add(city.city)
+                            navController.popBackStack(route = "plan", inclusive = false)
+                        },
                         modifier = Modifier
                             .weight(1f)
                             .height(48.dp),
