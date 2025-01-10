@@ -53,6 +53,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
@@ -75,7 +76,7 @@ import com.google.maps.android.compose.rememberCameraPositionState
 import kotlinx.coroutines.flow.collectLatest
 
 @Composable
-fun MapScreen(placesClient: PlacesClient) {
+fun MapScreen(viewModel:MyViewModel = viewModel(), placesClient: PlacesClient) {
     val singapore = LatLng(37.7749, -122.4194)
     val cameraPositionState = rememberCameraPositionState{
         position = CameraPosition.fromLatLngZoom(singapore, 13f)
@@ -108,29 +109,15 @@ fun MapScreen(placesClient: PlacesClient) {
 
 //    firebase database
     val database = FirebaseDatabase.getInstance()
-    val tripRef = database.reference.child("trips")
-//    LaunchedEffect(searchQuery) {
-//        if (searchQuery.isNotEmpty()) {
-//            searchPlace(searchQuery, placesClient) { resultLatLng, predictions ->
-//                searchResults = predictions
-//                if (resultLatLng != null) {
-//                    markerPositions = markerPositions + resultLatLng
-//                }
-////                resultLatLng?.let {
-////                    cameraPositionState.position = CameraPosition.fromLatLngZoom(it, 15f)
-////                }
-//            }
-//        } else {
-//            searchResults = emptyList() // 검색어가 비어있으면 결과 초기화
-//        }
-//    }
+    val city = viewModel.cityName
+    val tripRef = database.reference.child("trips").child(city)
 
     if(planLists.isEmpty()) {
         planLists.add(mutableListOf())
     }
 
     LaunchedEffect(Unit) {
-        getLatLngListForPage(currentPage) { latlngItem, placeItem ->
+        getLatLngListForPage(currentPage, city) { latlngItem, placeItem ->
             markerPositions.clear()
             selectedPlaces.clear()
             markerPositions.addAll(latlngItem)
@@ -146,7 +133,7 @@ fun MapScreen(placesClient: PlacesClient) {
     LaunchedEffect(pagerState) {
         snapshotFlow { pagerState.currentPage }.collectLatest { pageIndex ->
             currentPage = pageIndex
-            getLatLngListForPage(pageIndex) { latlngItem, placeItem ->
+            getLatLngListForPage(pageIndex, city) { latlngItem, placeItem ->
                 markerPositions.clear()
                 selectedPlaces.clear()
                 markerPositions.addAll(latlngItem)
@@ -233,24 +220,17 @@ fun MapScreen(placesClient: PlacesClient) {
                                         )
                                         tripRef.child("day${currentPage + 1}").child("latLngs")
                                             .push().setValue(latLngMap)
-//                                        markerPositions.add(latLng)
                                         cameraPositionState.position = CameraPosition.fromLatLngZoom(latLng, 15f)
                                     }
                                 }
-//                                selectedPlaces.add(searchQuery.text)
                                 tripRef.child("day${currentPage + 1}").child("name").push().setValue(searchQuery.text)
-//                                planLists[currentPage].add(searchQuery.text)
-//                                if(planLists[currentPage].size == 1) {
-//                                    planLists.add(mutableListOf())
-//                                }
+
                             }
                             isBtnActive = false
                             searchQuery = TextFieldValue()
                         },
                         contentPadding = PaddingValues(0.dp),
                         enabled = isBtnActive
-
-//                    .v
                     ){
                         Text(
                             text = "ADD",
@@ -290,33 +270,6 @@ fun MapScreen(placesClient: PlacesClient) {
             }
 
         }
-//        LazyColumn(
-//            modifier = Modifier.padding(8.dp)
-//        ) {
-//            itemsIndexed(selectedPlaces) {idx, item ->
-//                ListItem(
-//                    modifier = Modifier
-//                        .clip(RoundedCornerShape(8.dp)),
-//                    headlineContent = {Text(item)},
-//                    leadingContent = {
-//                        Text(
-//                            text = (idx + 1).toString(), // 순서 번호
-//                            style = MaterialTheme.typography.bodyLarge,
-//                            color = if (idx % 2 == 0) Color.White else Color.LightGray,
-//                            modifier = Modifier.padding(end = 8.dp)
-//                        )
-//                    },
-//                    colors = ListItemDefaults.colors(
-//                        containerColor = if (idx % 2 == 0) Color.LightGray else Color.White,
-//                        headlineColor = Color.Black
-//                    )
-//
-//                )
-//                if (idx < selectedPlaces.size - 1) {
-//                    Spacer(modifier = Modifier.height(8.dp))
-//                }
-//            }
-//        }
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.padding(top = 8.dp)
@@ -444,9 +397,9 @@ fun searchPlace(query: String, placesClient: PlacesClient, onResult: (LatLng?, L
         }
 }
 
-fun getLatLngListForPage(page: Int, callback: (List<LatLng>, List<String>) -> Unit) {
+fun getLatLngListForPage(page: Int, city:String, callback: (List<LatLng>, List<String>) -> Unit) {
     val database = FirebaseDatabase.getInstance()
-    val pagePath = "trips/day${page + 1}"
+    val pagePath = "trips/${city}/day${page + 1}"
     val latLngsRef = database.getReference(pagePath)
     val latLngList = mutableListOf<LatLng>()
     val placeList = mutableListOf<String>()

@@ -94,7 +94,6 @@ fun DateRangePickerModal(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(500.dp)
-//                .padding(16.dp)
         )
     }
 }

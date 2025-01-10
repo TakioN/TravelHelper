@@ -20,9 +20,9 @@ fun NavManage(placesClient: PlacesClient) {
         composable("plan") { MakePlan(myView, navController) }
         composable("recommend") { RecommendPage(myView, navController) }
         composable("survey") { TravelPlanScreen(myView, navController) }
-        composable("map") { MapScreen(placesClient = placesClient)}
+        composable("map") { MapScreen(myView, placesClient = placesClient)}
         composable("record") { MakeRecord(myView, navController)}
-        composable("read_record") { ReadRecord(navController) }
-        composable("write_record") { TravelRecord(navController) }
+        composable("read_record") { ReadRecord(myView, navController) }
+        composable("write_record") { TravelRecord(myView, navController) }
     }
 }

@@ -113,6 +113,7 @@ dependencies {
     implementation(libs.places)
     implementation(libs.accompanist.coil)
     implementation(libs.firebase.database)
+    implementation(libs.firebase.storage.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

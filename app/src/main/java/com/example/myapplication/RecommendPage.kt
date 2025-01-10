@@ -34,6 +34,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -41,6 +42,7 @@ import androidx.navigation.NavController
 import com.example.myapplication.data.City
 import com.example.myapplication.data.Location
 import com.example.myapplication.data.airportCode
+import kotlin.math.ceil
 
 @Composable
 fun RecommendPage(viewModel: MyViewModel = viewModel(), navController: NavController) {
@@ -49,8 +51,9 @@ fun RecommendPage(viewModel: MyViewModel = viewModel(), navController: NavContro
     val category = viewModel.category
     val with = viewModel.with
     val city = Recommendation(context, age, category, with)
-    val pagerState = rememberPagerState(pageCount = { 5 })
     val sortedLocations = city.locations.sortedByDescending { it.score }
+    val total_page = ceil(city.locations.size / 4.0).toInt()
+    val pagerState = rememberPagerState(pageCount = { total_page })
 
     Column(
         modifier = Modifier
@@ -84,7 +87,12 @@ fun RecommendPage(viewModel: MyViewModel = viewModel(), navController: NavContro
                     state = pagerState,
 
                 ) {page ->
-                    GridContent(sortedLocations.slice(0..3))
+                    if(page != total_page - 1){
+                        GridContent(sortedLocations.slice(4 * page..(4 * page + 3)))
+                    }
+                    else {
+                        GridContent(sortedLocations.slice(4 * page..(sortedLocations.size - 1)))
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(32.dp))
@@ -105,7 +113,8 @@ fun RecommendPage(viewModel: MyViewModel = viewModel(), navController: NavContro
                     }
                     Button(
                         onClick = {
-                            viewModel.planList.add(city.city)
+//                            viewModel.planList.add(city.city)
+                            savePlans(city.city)
                             navController.popBackStack(route = "plan", inclusive = false)
                         },
                         modifier = Modifier
@@ -143,12 +152,13 @@ fun GridContent(gridItems: List<Location>) {
                         shape = RoundedCornerShape(8.dp) // 테두리 모양
                     )
                     .aspectRatio(1.0f)
+                    .padding(2.dp)
             ){
                 Text(
                     text = "${it.name}",
                     fontSize = 25.sp,
-
-
+                    textAlign = TextAlign.Center,
+                    color = Color.Black
                 )
             }
 

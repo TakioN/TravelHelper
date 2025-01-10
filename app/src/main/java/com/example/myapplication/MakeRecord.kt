@@ -27,6 +27,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -41,7 +42,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.google.android.gms.maps.model.LatLng
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 
 data class MemoryEntry(
     val content: String =""
@@ -52,8 +57,14 @@ fun MakeRecord(viewModel: MyViewModel, navController: NavController) {
 
     var isVisible by remember { mutableStateOf(false) }
     var title by remember { mutableStateOf("") }
-//    var planList = remember { mutableStateListOf<String>("도쿄") }
-    var memoryList = viewModel.memoryList
+    var memoryList = remember{ mutableStateListOf<String>() }
+
+    LaunchedEffect(Unit) {
+        getTitles{titles->
+            memoryList.clear()
+            memoryList.addAll(titles)
+        }
+    }
 
     Box(
         modifier = Modifier
@@ -82,7 +93,8 @@ fun MakeRecord(viewModel: MyViewModel, navController: NavController) {
                         .fillMaxWidth()
                         .height(55.dp)
                         .padding(5.dp)
-                        .clickable{
+                        .clickable {
+                            viewModel.memoryTitle = item
                             navController.navigate("read_record")
                         },
                     contentAlignment = Alignment.Center
@@ -114,10 +126,13 @@ fun MakeRecord(viewModel: MyViewModel, navController: NavController) {
                 confirmButton = {
                     TextButton(
                         onClick = {
-//                            memoryList.add(title)
-                            saveToDb(title, "")
+                            viewModel.memoryTitle = title
+                            viewModel.memoryContent = ""
+                            viewModel.memoryImageUrl = null
+//                            saveToDb(title, "")
                             isVisible = false
                             title = ""
+                            navController.navigate("write_record")
                         }
                     ) {
                         Text("OK")
@@ -139,30 +154,26 @@ fun MakeRecord(viewModel: MyViewModel, navController: NavController) {
     }
 }
 
-fun saveToDb(title: String, content: String) {
+fun getTitles(callback: (List<String>) -> Unit){
     val database = FirebaseDatabase.getInstance()
     val databaseRef = database.reference.child("memory")
+    var titles = mutableListOf<String>()
 
-    databaseRef.child(title).setValue(content)
+    databaseRef.addValueEventListener(object: ValueEventListener {
+        override fun onDataChange(snapshot: DataSnapshot) {
+            titles.clear()
+            for(childSnapshot in snapshot.children) {
+                val title = childSnapshot.key
+                if(title != null) {
+                    titles.add(title)
+                }
+            }
+            callback(titles)
+        }
+
+        override fun onCancelled(error: DatabaseError) {
+            callback(emptyList())
+        }
+
+    })
 }
-
-//@Composable
-//fun FloatingAddButton(onClick: () -> Unit) {
-//    Box(
-//        contentAlignment = Alignment.BottomEnd,
-//        modifier = Modifier
-//            .padding(16.dp)
-//            .fillMaxSize()
-//    ) {
-//        FloatingActionButton(
-//            onClick = onClick,
-//            containerColor = MaterialTheme.colorScheme.primary, // 버튼 색상
-//            contentColor = MaterialTheme.colorScheme.onPrimary // 아이콘 색상
-//        ) {
-//            Icon(
-//                imageVector = Icons.Default.Add, // 플러스 아이콘
-//                contentDescription = "Add"
-//            )
-//        }
-//    }
-//}

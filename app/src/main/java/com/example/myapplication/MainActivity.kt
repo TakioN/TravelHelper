@@ -35,11 +35,6 @@ class MainActivity : ComponentActivity() {
 //                    TravelAssistantScreen()
 
                     NavManage(placesClient)
-//                    TravelRecord()
-//                    TravelPlanScreen(navController = )
-//                    Recommendation(20, listOf("액티비티", "관광"), 0)
-//                    MapScreen(placesClient)
-//                    TravelAssistantScreen()
                 }
             }
         }

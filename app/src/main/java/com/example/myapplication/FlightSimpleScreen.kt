@@ -4,6 +4,7 @@ import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,6 +16,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
@@ -34,6 +37,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.myapplication.data.airportCode
 
@@ -64,6 +68,17 @@ fun FlightSimpleScreen() {
     val selectedDateRoundTo =
         datePickerStateRoundTo?.let { convertMillisToDate(datePickerStateRoundTo!!) } ?: ""
 
+    var adultExpanded by remember { mutableStateOf(false) }
+    var childExpanded by remember { mutableStateOf(false) }
+    var infantExpanded by remember { mutableStateOf(false) }
+    var aSelectedOption by remember { mutableStateOf(1) }
+    var cSelectedOption by remember { mutableStateOf(0) }
+    var iSelectedOption by remember { mutableStateOf(0) }
+    var adultText by remember { mutableStateOf("성인") }
+    var childText by remember { mutableStateOf("소인") }
+    var infantText by remember { mutableStateOf("유아") }
+    val options = listOf(0,1,2,3,4,5)
+
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
@@ -92,13 +107,6 @@ fun FlightSimpleScreen() {
             .padding(bottom = 10.dp),
 
         placeholder = { Text(text = "FROM") },
-//        colors = TextFieldDefaults.outlinedTextFieldColor(
-//            focusedTextColor = Color.Black,
-//            unfocusedTextColor = Color.Black,
-//            containerColor = Color(244, 235, 235),
-//            focusedBorderColor = Color.Transparent,
-//            unfocusedBorderColor = Color.Transparent
-//        )
         colors = OutlinedTextFieldDefaults.colors(
             focusedTextColor = Color.Black,
             unfocusedTextColor = Color.Black,
@@ -117,13 +125,6 @@ fun FlightSimpleScreen() {
         modifier = Modifier
             .fillMaxWidth(),
         placeholder = { Text(text = "TO") },
-//        colors = TextFieldDefaults.outlinedTextFieldColors(
-//            focusedTextColor = Color.Black,
-//            unfocusedTextColor = Color.Black,
-//            containerColor = Color(244, 235, 235),
-//            focusedBorderColor = Color.Transparent,
-//            unfocusedBorderColor = Color.Transparent
-//        )
         colors = OutlinedTextFieldDefaults.colors(
             focusedTextColor = Color.Black,
             unfocusedTextColor = Color.Black,
@@ -133,6 +134,87 @@ fun FlightSimpleScreen() {
             unfocusedBorderColor = Color.Transparent
         )
     )
+
+    Spacer(modifier = Modifier.height(16.dp))
+
+    Row(modifier = Modifier.fillMaxWidth()){
+        Box(
+            modifier = Modifier.weight(1f),
+            contentAlignment = Alignment.Center
+        ){
+            Text(
+                text = adultText,
+                modifier = Modifier.clickable { adultExpanded = true },
+                color = Color.Black
+            )
+            DropdownMenu(
+                expanded = adultExpanded,
+                onDismissRequest = { adultExpanded = false }
+            ) {
+                options.drop(1).forEach { option ->
+                    DropdownMenuItem(
+                        onClick = {
+                            aSelectedOption = option
+                            adultText = "${aSelectedOption}명"
+                            adultExpanded = false
+                        },
+                        text = {Text(text = "${option}명")}
+                    )
+                }
+            }
+        }
+        Box(
+            modifier = Modifier.weight(1f),
+            contentAlignment = Alignment.Center
+        ){
+            Text(
+                text = childText,
+                modifier = Modifier.clickable { childExpanded = true },
+                color = Color.Black
+            )
+            DropdownMenu(
+                expanded = childExpanded,
+                onDismissRequest = { childExpanded = false }
+            ) {
+                options.forEach { option ->
+                    DropdownMenuItem(
+                        onClick = {
+                            cSelectedOption = option
+                            childText = "${cSelectedOption}명"
+                            childExpanded = false
+                        },
+                        text = {Text(text = "${option}명")}
+                    )
+                }
+            }
+        }
+        Box(
+            modifier = Modifier.weight(1f),
+            contentAlignment = Alignment.Center
+        ){
+            Text(
+                text = infantText,
+                modifier = Modifier.clickable { infantExpanded = true },
+                color = Color.Black
+            )
+            DropdownMenu(
+                expanded = infantExpanded,
+                onDismissRequest = { infantExpanded = false }
+            ) {
+                options.forEach { option ->
+                    DropdownMenuItem(
+                        onClick = {
+                            iSelectedOption = option
+                            infantText = "${iSelectedOption}명"
+                            infantExpanded = false
+                        },
+                        text = {Text(text = "${option}명")}
+                    )
+                }
+            }
+        }
+
+    }
 
     Spacer(modifier = Modifier.height(16.dp))
 
@@ -149,13 +231,6 @@ fun FlightSimpleScreen() {
 
                 },
             placeholder = { Text(text = "DEPARTURE") },
-//            colors = TextFieldDefaults.outlinedTextFieldColors(
-//                focusedTextColor = Color.Black,
-//                unfocusedTextColor = Color.Black,
-//                containerColor = Color(244, 235, 235),
-//                focusedBorderColor = Color.Transparent,
-//                unfocusedBorderColor = Color.Transparent
-//            ),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedTextColor = Color.Black,
                 unfocusedTextColor = Color.Black,
@@ -197,13 +272,6 @@ fun FlightSimpleScreen() {
                     .weight(1f)
                     .clickable { focusManager.clearFocus() },
                 placeholder = { Text(text = "DEPARTURE") },
-//                colors = TextFieldDefaults.colors(
-//                    focusedTextColor = Color.Black,
-//                    unfocusedTextColor = Color.Black,
-//                    containerColor = Color(244, 235, 235),
-//                    focusedBorderColor = Color.Transparent,
-//                    unfocusedBorderColor = Color.Transparent
-//                ),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedTextColor = Color.Black,
                     unfocusedTextColor = Color.Black,
@@ -233,13 +301,6 @@ fun FlightSimpleScreen() {
                 modifier = Modifier
                     .weight(1f),
                 placeholder = { Text(text = "RETURN") },
-//                colors = TextFieldDefaults.outlinedTextFieldColors(
-////                    focusedTextColor = Color.Black,
-////                    unfocusedTextColor = Color.Black,
-////                    containerColor = Color(244, 235, 235),
-////                    focusedBorderColor = Color.Transparent,
-////                    unfocusedBorderColor = Color.Transparent
-////                ),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedTextColor = Color.Black,
                     unfocusedTextColor = Color.Black,
@@ -281,12 +342,13 @@ fun FlightSimpleScreen() {
             val depCode = airportCode[fromText]
             val arrCode = airportCode[toText]
             var webPage: Uri? = null
+            val member = getMember(aSelectedOption, cSelectedOption, iSelectedOption)
             if (isOneway) {
                 webPage =
-                    Uri.parse("https://flight.naver.com/flights/international/${depCode}-${arrCode}-${selectedDateOne}?adult=1&fareType=Y")
+                    Uri.parse("https://flight.naver.com/flights/international/${depCode}-${arrCode}-${selectedDateOne}?${member}&fareType=Y")
             } else {
                 webPage =
-                    Uri.parse("https://flight.naver.com/flights/international/${depCode}-${arrCode}-${selectedDateRoundFrom}/${arrCode}-${depCode}-${selectedDateRoundTo}?adult=1&fareType=Y")
+                    Uri.parse("https://flight.naver.com/flights/international/${depCode}-${arrCode}-${selectedDateRoundFrom}/${arrCode}-${depCode}-${selectedDateRoundTo}?${member}&fareType=Y")
             }
             val intent = Intent(Intent.ACTION_VIEW, webPage)
             if (fromText.isNotEmpty()
@@ -305,4 +367,12 @@ fun FlightSimpleScreen() {
     ) {
         Text(text = "SEARCH")
     }
+}
+
+fun getMember(a:Int, c:Int, i:Int):String {
+    var result = "adult=${a}"
+    if(c != 0) result += "&child=${c}"
+    if(i != 0) result += "&infant=${i}"
+
+    return result
 }

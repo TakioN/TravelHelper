@@ -105,29 +105,10 @@ fun TravelPlanScreen(viewModel: MyViewModel = viewModel(), navController: NavHos
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Date picker
-//            Text(text = "Date:", color = Color.Black)
-//            val context = LocalContext.current
-//            val calendar = Calendar.getInstance()
-//            val year = calendar.get(Calendar.YEAR)
-//            val month = calendar.get(Calendar.MONTH)
-//            val day = calendar.get(Calendar.DAY_OF_MONTH)
-//            var dateText by remember { mutableStateOf("$day / ${month + 1} / $year") }
-//
-//            Button(onClick = {
-//                DatePickerDialog(context, { _, selectedYear, selectedMonth, selectedDay ->
-//                    dateText = "$selectedDay / ${selectedMonth + 1} / $selectedYear"
-//                }, year, month, day).show()
-//            }) {
-//                Text(text = dateText)
-//            }
-//
-//            Spacer(modifier = Modifier.height(32.dp))
-
             // Travel Style and With Whom options
             Text(text = "Travel Style:", color = Color.Black)
             Row() {
-                listOf("FOOD", "SHOPPING", "HISTORY").forEachIndexed { idx, style ->
+                listOf("FOOD", "SHOPPING", "CULTURE").forEachIndexed { idx, style ->
                     Button(
                         onClick = { setStyleList(style, idx) },
                         colors = ButtonDefaults.buttonColors(
@@ -138,8 +119,8 @@ fun TravelPlanScreen(viewModel: MyViewModel = viewModel(), navController: NavHos
                     }
                 }
             }
-            Row() {
-                listOf("NATURE", "CULTURE", "LANDMARK").forEachIndexed { idx, style ->
+            Row(modifier = Modifier.padding(start = 40.dp)) {
+                listOf("NATURE", "LANDMARK").forEachIndexed { idx, style ->
                     Button(
                         onClick = { setStyleList(style, idx + 3) },
                         colors = ButtonDefaults.buttonColors(
@@ -153,7 +134,7 @@ fun TravelPlanScreen(viewModel: MyViewModel = viewModel(), navController: NavHos
             Row() {
                 listOf("ACTIVITY", "PHOTOES", "ART").forEachIndexed { idx, style ->
                     Button(
-                        onClick = { setStyleList(style, idx + 6) },
+                        onClick = { setStyleList(style, idx + 5) },
                         colors = ButtonDefaults.buttonColors(
                             containerColor = if(styleList.contains(style)) Color.Yellow else Color.Gray
                         )

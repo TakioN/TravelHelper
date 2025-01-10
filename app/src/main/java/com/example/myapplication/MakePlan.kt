@@ -1,5 +1,6 @@
 package com.example.myapplication
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -27,6 +28,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -41,6 +43,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -48,8 +54,15 @@ fun MakePlan(viewModel: MyViewModel, navController: NavController) {
 
     var isVisible by remember { mutableStateOf(false) }
     var destination by remember { mutableStateOf("") }
-//    var planList = remember { mutableStateListOf<String>("도쿄") }
-    var planList = viewModel.planList
+    var planList = remember { mutableStateListOf<String>() }
+
+    LaunchedEffect(Unit) {
+        getPlans {
+            planList.clear()
+            planList.addAll(it)
+        }
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -77,7 +90,8 @@ fun MakePlan(viewModel: MyViewModel, navController: NavController) {
                         .fillMaxWidth()
                         .height(55.dp)
                         .padding(5.dp)
-                        .clickable{
+                        .clickable {
+                            viewModel.cityName = item
                             navController.navigate("map")
                         },
                     contentAlignment = Alignment.Center
@@ -109,6 +123,7 @@ fun MakePlan(viewModel: MyViewModel, navController: NavController) {
                     TextButton(
                         onClick = {
                             planList.add(destination)
+                            savePlans(destination)
                             isVisible = false
                             destination = ""
                         }
@@ -163,4 +178,34 @@ fun FloatingAddButton(onClick: () -> Unit) {
             )
         }
     }
+}
+
+fun getPlans(callback:(MutableList<String>) -> Unit) {
+    val database = FirebaseDatabase.getInstance()
+    val cityRef = database.reference.child("cities")
+    var cityList = mutableListOf<String>()
+
+    cityRef.addListenerForSingleValueEvent(object : ValueEventListener {
+        override fun onDataChange(snapshot: DataSnapshot) {
+            cityList.clear()
+            for(ch in snapshot.children) {
+                val data = ch.getValue(String::class.java)
+                if(data != null){
+                    cityList.add(data)
+                }
+            }
+            callback(cityList)
+        }
+
+        override fun onCancelled(error: DatabaseError) {
+            Log.e("FirebaseDatabase", "Error fetching image URLs", error.toException())
+        }
+    })
+}
+
+fun savePlans(city:String) {
+    val database = FirebaseDatabase.getInstance()
+    val cityRef = database.reference.child("cities")
+
+    cityRef.push().setValue(city)
 }

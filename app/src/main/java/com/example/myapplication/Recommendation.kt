@@ -18,31 +18,28 @@ import kotlin.math.abs
 
 var sortedrank: List<Location> = emptyList()
 val weights = arrayOf(
-    doubleArrayOf(1.0, 0.5, 0.0, 0.0, 0.7, 0.3, 0.1, 0.5, 0.2),
-    doubleArrayOf(0.5, 1.0, 0.0, 0.0, 0.5, 0.3, 0.2, 0.3, 0.1),
-    doubleArrayOf(0.0, 0.0, 1.0, 0.6, 0.7, 0.7, 0.3, 0.6, 0.4),
-    doubleArrayOf(0.0,0.0,0.6,1.0,0.4,0.5,0.1,0.7,0.2),
-    doubleArrayOf(0.7,0.5,0.7,0.4,1.0,0.6,0.4,0.6,0.6),
-    doubleArrayOf(0.3,0.3,0.7,0.5,0.6,1.0,0.7,0.5,0.4),
-    doubleArrayOf(0.1,0.2,0.3,0.1,0.4,0.7,1.0,0.1,0.0),
-    doubleArrayOf(0.5,0.3,0.6,0.7,0.6,0.5,0.1,1.0,0.7),
-    doubleArrayOf(0.2,0.1,0.4,0.2,0.6,0.4,0.0,0.7,1.0)
+    doubleArrayOf(1.0, 0.5, 0.7, 0.0, 0.3, 0.1, 0.5, 0.2),
+    doubleArrayOf(0.5, 1.0, 0.5, 0.0, 0.3, 0.2, 0.3, 0.1),
+    doubleArrayOf(0.0, 0.0, 1.0, 0.6, 0.7, 0.3, 0.6, 0.4),
+    doubleArrayOf(0.0,0.0,0.4,1.0,0.5,0.1,0.7,0.2),
+    doubleArrayOf(0.3,0.3,0.6,0.5,1.0,0.7,0.5,0.4),
+    doubleArrayOf(0.1,0.2,0.4,0.1,0.7,1.0,0.1,0.0),
+    doubleArrayOf(0.5,0.3,0.6,0.7,0.5,0.1,1.0,0.7),
+    doubleArrayOf(0.2,0.1,0.6,0.2,0.4,0.0,0.7,1.0)
 )
 
-fun main() {
-//    Recommendation(20, listOf(6, 5), "혼자")
-}
+
 fun Recommendation(context: Context, age: Int, category: List<Int>, companion: String):City {
 //    val path = System.getProperty("user.dir") + "/app/src/main/java/com/example/myapplication"
 //    val jsonData = File("$path/data/trip_locations.json").readText()
-    val inputStream = context.resources.openRawResource(R.raw.trip_locations)
+    val inputStream = context.resources.openRawResource(R.raw.trip_locations2)
     val jsonData = inputStream.bufferedReader().use { it.readText() }
 
     val gson = Gson()
     val cityToken = object: TypeToken<List<City>>() {}.type
     val cities: List<City> = gson.fromJson(jsonData, cityToken)
 
-    var maxScore = 0.0
+    var maxAvg = 0.0
     var maxIdx = -1
     cities.forEachIndexed() { idx, city ->
         var localScore = 0.0
@@ -51,8 +48,8 @@ fun Recommendation(context: Context, age: Int, category: List<Int>, companion: S
             localScore += it.score
         }
 
-        if(localScore > maxScore) {
-            maxScore = localScore
+        if(localScore / city.locations.size > maxAvg) {
+            maxAvg = localScore / city.locations.size
             maxIdx = idx
         }
     }
@@ -64,30 +61,20 @@ fun Recommendation(context: Context, age: Int, category: List<Int>, companion: S
 fun calculateScore(location: Location, age: Int, category: List<Int>, companion: String): Double {
     var score:Double = 0.0
     var ageDiff = 50
+    val category_weights = listOf(22, 17, 11)
+
+
+    for(i in location.category) {
+
+    }
 
     //    calculate category score
     for((idx, selectedCategory) in category.withIndex()) {
-        if(idx == 0) {
-            score += 22 * listOf(
-                weights[category[0]][location.category[0]],
-                weights[category[0]][location.category[1]],
-                weights[category[0]][location.category[2]]
-            ).maxOrNull()!!
+        var lo_category = mutableListOf<Double>()
+        for(i in location.category) {
+            lo_category.add(weights[category[idx]][i])
         }
-        else if(idx == 1) {
-            score += 17 * listOf(
-                weights[category[1]][location.category[0]],
-                weights[category[1]][location.category[1]],
-                weights[category[1]][location.category[2]]
-            ).maxOrNull()!!
-        }
-        else {
-            score += 11 * listOf(
-                weights[category[2]][location.category[0]],
-                weights[category[2]][location.category[1]],
-                weights[category[2]][location.category[2]]
-            ).maxOrNull()!!
-        }
+        score += category_weights[idx] * lo_category.maxOrNull()!!
     }
 
 
